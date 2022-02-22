@@ -1,21 +1,3 @@
-##############################################################################
-#
-# FILE
-#   run_analysis.R
-#
-# OVERVIEW
-#   Using data collected from the accelerometers from the Samsung Galaxy S 
-#   smartphone, process the data and create a tidy data set, outputting the
-#   resulting tidy data to a file named "TidyData.txt".
-#   See README.md for details.
-#
-##############################################################################
-
-
-##############################################################################
-# STEP 1 - Set up the working environment - Get data
-##############################################################################
-
 options(warn=-1)  
 library(data.table)
 options(warn=0)
@@ -24,11 +6,6 @@ fileurl<-"https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20H
 download.file(fileurl, destfile = "mydata.zip", method = "curl")
 unzip("mydata.zip")
 setwd("./UCI HAR Dataset")
-
-
-##############################################################################
-# STEP 2 - Merging the training and test sets
-##############################################################################
 
 subject_train <- read.table("./train/subject_train.txt", header = FALSE)
 names(subject_train)<-"subjectID"
@@ -50,10 +27,6 @@ names(X_train) <- FeatureNames$V2
 X_test <- read.table("./test/X_test.txt", header = FALSE)
 names(X_test) <- FeatureNames$V2
 
-##############################################################################
-# Step 3 - Merge the training and the test sets to create one data set
-##############################################################################
-
 train <- cbind(subject_train, y_train, X_train)
 test <- cbind(subject_test, y_test, X_test)
 alldata <- rbind(train, test)
@@ -68,10 +41,6 @@ meanstd_data<-cbind(keycol,meancol,stdcol)
 actlbl<-read.table("activity_labels.txt")
 ## Encode activities and adding the labels
 alldata$activity <- factor(alldata$activity, labels=actlbl$V2)
-
-##############################################################################
-# Step 4 - Appropriately label the data set with descriptive variable names
-##############################################################################
 
 names(alldata)<-gsub("tBody","TimeDomainBody",names(alldata), fixed=TRUE)
 names(alldata)<-gsub("tGravity","TimeDomainGravity",names(alldata), fixed=TRUE)
@@ -99,10 +68,6 @@ names(alldata)<-gsub("-meanFreq()","WeightedAverageOfFrequencyComponentsForMeanF
 names(alldata)<-gsub("-skewness()","Skewness",names(alldata), fixed=TRUE)
 names(alldata)<-gsub("-kurtosis()","Kurtosis",names(alldata), fixed=TRUE)
 names(alldata)<-gsub("-bandsEnergy()","EnergyOfFrequencyInterval.",names(alldata), fixed=TRUE)
-
-##############################################################################
-# Step 5 - Creating a tidy set. Saving the file tidy.txt 
-##############################################################################
 
 DT<-data.table(alldata)
 tidy<-DT[,lapply(.SD,mean),by="activity,subjectID"]
